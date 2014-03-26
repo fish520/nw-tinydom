@@ -1,0 +1,268 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8" />
+<title>仿QQ邮箱删除对话框</title>
+<style type="text/css">
+
+html, body{
+	margin:0;
+}
+
+#dlg{
+	position: absolute;
+	width: 440px;
+	margin: 47px 100px;
+	border:1px solid #bbb;
+	border-radius:5px;
+	box-shadow:rgba(0, 0, 0, 0.2) 0px 0px 8px 0px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	display: none;
+	z-index:999;
+}
+/*
+#dlg *{
+	outline:1px solid blue;
+}
+*/
+.dlg_header{
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
+	background:#EAEAEA;
+	height:35px;
+	line-height:35px;
+	font: bold 12px/35px 'lucida Grande', Verdana;
+	padding-left:15px;
+	cursor:move;
+}
+
+.dlg_close{
+	background:transparent url(qqmail.png) -18px -240px no-repeat;
+	border-radius: 2px;
+	display: block;
+	height: 18px;
+	width: 18px;
+	position: absolute;
+	right: 10px;
+	top: 9px;
+}
+.dlg_close:hover{
+	background-position: -54px -240px;
+}
+
+.dlg_body{
+	background: #f8f8f8;
+	height: 100px;
+	border: 1px solid #ccc;
+	border-width:1px 0 1px 0;
+	font-size: 14px;
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	user-select: text;
+}
+.dlg_content{
+	height:32px;
+	line-height:32px;
+	box-sizing:border-box;
+	margin:30px 30px auto 36px;
+	padding:0;
+}
+.dlg_ico{
+	display:inline-block;
+	width:32px;
+	height:32px;
+	background:url(prompts.png) no-repeat -96px 0;
+	vertical-align:top;
+}
+.dlg_msg{
+	margin:0 0 0 12px;
+	display:inline-block;
+	height:32px;
+	line-height:32px;
+}
+
+.dlg_footer{
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
+	background:#EAEAEA;
+	height:38px;
+	line-height:38px;
+	text-align:right;
+	padding-right:10px;
+}
+.dlg_footer a{
+	background-image:-webkit-linear-gradient(top, white 0%, #EBEBEB 90%, #F3F3F3 100%);
+	background-image:linear-gradient(top, white 0%, #EBEBEB 90%, #F3F3F3 100%);
+	font:normal 12px 'Simsun\9';
+	display:inline-block;
+	height:22px;
+	line-height:22px;
+	padding:0 12px;
+	vertical-align: top;
+	margin:7px 0 7px 3px;
+	border:1px solid #888;
+	border-radius: 3px;
+	color: black;
+	cursor:default;
+	text-decoration:none;
+}
+.dlg_footer a:hover{
+	background: -webkit-linear-gradient(top, #EBEBEB, #F3F3F3);
+	background: linear-gradient(top, #EBEBEB, #F3F3F3);
+	border: 1px solid #888;
+}
+
+.mask{
+	position: absolute;
+	background:rgba(255, 255, 255, 0.5);
+	width:100%;
+	height:100%;
+	z-index:98;
+	display: none;
+}
+
+
+ul{
+	margin:50px;
+	padding:0;
+	width:800px;
+	list-style:none;
+	border:1px solid silver;
+}
+
+li{
+	margin:0;
+	padding:1px;
+/*	background-image: linear-gradient( #5393c5, #6facd5);*/
+	border-bottom:1px solid silver;
+}
+li:last-child{
+	border:none;
+}
+li.active{
+	font-weight: bold;
+	color: #fff;
+	text-shadow: 0 1px 0 #3373a5;
+}
+.bar{
+	display: inline-block;
+	line-height: 32px;
+	height:32px;
+	vertical-align: middle;
+	width:0px;
+	background: silver;
+	/*background-image: linear-gradient(#fff, #f1f1f1);*/
+/*	background-image: linear-gradient( #5393c5, #6facd5);*/
+}
+.bar:hover{
+	background: #5393c5;
+	background-image: linear-gradient( #5f9cc5, #396b9e);
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="dlg">
+	<div class="dlg_header">
+		删除确认
+		<a href="#close" class="dlg_close"></a><!-- ×☓ -->
+	</div>
+	<div class="dlg_body">
+		<div class="dlg_content">
+			<span class="dlg_ico"></span><span class="dlg_msg">彻底删除后邮件将无法恢复，您确定要删除吗？</span>
+		</div>
+	</div>
+	<div class="dlg_footer">
+		<a id="mb_ok" href="#ok">确定</a><a id="mb_cancel" href="#cancel">取消</a>
+	</div>
+</div>
+<div class="mask"></div>
+<input type="button" value="彻底删除" id="del" style="position:relative;top:30px;left:100px;" />
+
+<!--<script src="jquery-2.0.3.min.js"></script>-->
+<script src="../dom.js"></script>
+<script src="../extension/animate.js"></script>
+
+<script language="javascript">
+
+var dlg = $('#dlg');
+var mask = $('.mask');
+
+function hideDlg(e){
+	mask.css('display', 'none');
+	dlg.animate({top:'-=50px', opacity:0}, 600, function(){
+		this.style.display = 'none';
+	});
+}
+
+function showDlg(){
+	/*
+	// display:''与display:'block'是有区别的！
+	// 如果以非内联方式定义了display:none，则不能通过display:''的方式使元素显示出来！
+	// display:''使元素显现只能在行内使用style='display:none'时有效！
+	dlg.css('display', 'block');
+	alert($('dlg').style['display']);
+	$('dlg').style.display='';
+	*/
+	mask.css('display', 'block');
+	dlg.css('display', 'block').animate({top:'+=50px', opacity:1}, 600);
+}
+
+$('#del').on('click', showDlg);
+$('.dlg_footer a').on('click', hideDlg);
+
+</script>
+
+
+<ul>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+	<li><span class="bar"></span></li>
+</ul>
+
+<script type="text/javascript">
+
+var bars = $(".bar");
+var size = bars.length;
+
+bars
+.each(function(i){
+	$(this).delay(i*500).animate({width: "800px"}, 1000, function(){
+		$(this).delay((size-1)*500-i*400).rollback();
+	}).animate({width: "800px"}, 600, function(){
+		$(this.parentNode).css("text-align", "right");
+	}).animate({width: "0px"}, 600).delay((size-i)*100)
+	.animate({width: "400px", "margin-right": "200px"}, 600, function(){
+		$(this.parentNode).css("text-align", "left");
+		$(this).css({"margin-right": "0", "margin-left": "200px"})
+			.animate({"margin-left": "0px", width: "0px"}, 400);
+	})
+	//.delay(200).animate({opacity:0}, 5000);
+})
+/*.each(function(i){	// pesudo music rhythm
+	var w;
+	var self = $(this);
+	self.css("width", 0).delay(300);
+
+	for(var c=0; c<50; c++){
+		w = parseInt(Math.random()*700+100);
+		self.animate({width: w + "px", opacity: 1-w/800}, Math.random()*300+100);
+		w = parseInt(Math.random()*300);
+		self.animate({width: w + "px", opacity: 1-w/800}, Math.random()*200+400);
+	}
+});
+*/
+
+</script>
+</body>
+</html>
