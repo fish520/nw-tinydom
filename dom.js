@@ -320,7 +320,7 @@
 		},
 
 		html: function(val) {
-			if( typeof val !== "string") {	// or undefined ?
+			if(val == undefined) {
 				return this.map(function(){
 					return this.innerHTML;
 				});
